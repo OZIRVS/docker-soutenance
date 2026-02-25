@@ -1,89 +1,104 @@
-<script setup lang="ts">
-import { RouterLink, RouterView } from 'vue-router'
-import HelloWorld from './components/HelloWorld.vue'
-import { ref } from 'vue';
-
-const statut = ref('En attente de test...');
-
-const testerConnexion = async () => {
-  try {
-    const reponse = await fetch('http://localhost:3000/api/status');
-    const donnees = await reponse.json();
-    statut.value = donnees.success ? 'Connecté (Base de données OK)' : 'Erreur interne de la base';
-  } catch (erreur) {
-    statut.value = 'Échec de la communication avec le Backend';
-  }
-}
-</script>
-
 <template>
-  <main>
-    <button @click="testerConnexion">Vérifier Backend et BDD</button>
-    <p>Statut : {{ statut }}</p>
+  <main style="max-width: 520px; margin: 40px auto; font-family: system-ui">
+    <h1>Démo Front ↔ Back ↔ DB</h1>
+
+    <section style="margin-top: 16px; padding: 12px; border: 1px solid #ddd; border-radius: 8px">
+      <h2 style="margin: 0 0 8px">Ajouter un utilisateur</h2>
+
+      <form @submit.prevent="createUser" style="display: flex; gap: 8px">
+        <input
+          v-model.trim="firstname"
+          type="text"
+          placeholder="Prénom"
+          required
+          style="flex: 1; padding: 8px"
+        />
+        <button type="submit" :disabled="loading" style="padding: 8px 12px">
+          {{ loading ? 'Envoi...' : 'Envoyer' }}
+        </button>
+      </form>
+
+      <p v-if="created" style="margin: 10px 0 0">
+        ✅ Enregistré : <strong>{{ created.firstname }}</strong> (id {{ created.id }})
+      </p>
+
+      <p v-if="error" style="margin: 10px 0 0; color: #b00020">❌ {{ error }}</p>
+    </section>
+
+    <section style="margin-top: 16px; padding: 12px; border: 1px solid #ddd; border-radius: 8px">
+      <h2 style="margin: 0 0 8px">Utilisateurs en base</h2>
+
+      <button @click="loadUsers" :disabled="loadingUsers" style="padding: 8px 12px">
+        {{ loadingUsers ? 'Chargement...' : 'Rafraîchir' }}
+      </button>
+
+      <ul style="margin-top: 10px">
+        <li v-for="u in users" :key="u.id">
+          #{{ u.id }} — {{ u.firstname }} — {{ formatDate(u.created_at) }}
+        </li>
+      </ul>
+    </section>
   </main>
 </template>
 
+<script setup>
+import { onMounted, ref } from 'vue'
 
-<style scoped>
-header {
-  line-height: 1.5;
-  max-height: 100vh;
-}
+const API_BASE = 'http://localhost:3000' // si tu changes le port, ajuste ici
 
-.logo {
-  display: block;
-  margin: 0 auto 2rem;
-}
+const firstname = ref('')
+const loading = ref(false)
+const error = ref('')
+const created = ref(null)
 
-nav {
-  width: 100%;
-  font-size: 12px;
-  text-align: center;
-  margin-top: 2rem;
-}
+const users = ref([])
+const loadingUsers = ref(false)
 
-nav a.router-link-exact-active {
-  color: var(--color-text);
-}
-
-nav a.router-link-exact-active:hover {
-  background-color: transparent;
-}
-
-nav a {
-  display: inline-block;
-  padding: 0 1rem;
-  border-left: 1px solid var(--color-border);
-}
-
-nav a:first-of-type {
-  border: 0;
-}
-
-@media (min-width: 1024px) {
-  header {
-    display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
-  }
-
-  .logo {
-    margin: 0 2rem 0 0;
-  }
-
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
-  }
-
-  nav {
-    text-align: left;
-    margin-left: -1rem;
-    font-size: 1rem;
-
-    padding: 1rem 0;
-    margin-top: 1rem;
+function formatDate(iso) {
+  try {
+    return new Date(iso).toLocaleString()
+  } catch {
+    return iso
   }
 }
-</style>
+
+async function loadUsers() {
+  loadingUsers.value = true
+  error.value = ''
+  try {
+    const r = await fetch(`${API_BASE}/api/users`)
+    const data = await r.json()
+    if (!r.ok || !data.success) throw new Error(data.error || 'Erreur API')
+    users.value = data.users
+  } catch (e) {
+    error.value = e.message || String(e)
+  } finally {
+    loadingUsers.value = false
+  }
+}
+
+async function createUser() {
+  loading.value = true
+  error.value = ''
+  created.value = null
+
+  try {
+    const r = await fetch(`${API_BASE}/api/users`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ firstname: firstname.value }),
+    })
+    const data = await r.json()
+    if (!r.ok || !data.success) throw new Error(data.error || 'Erreur API')
+    created.value = { id: data.id, firstname: data.firstname }
+    firstname.value = ''
+    await loadUsers()
+  } catch (e) {
+    error.value = e.message || String(e)
+  } finally {
+    loading.value = false
+  }
+}
+
+onMounted(loadUsers)
+</script>
