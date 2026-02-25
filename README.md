@@ -1,6 +1,6 @@
 # docker-soutenance
 
-🚀 Installation et lancement du projet
+Installation et lancement du projet
 
 1. Créer le fichier .env à la racine
 
@@ -16,12 +16,12 @@
 
    docker compose up -d --build
 
-🌐 Accès aux services
+Accès aux services
 
 Frontend : http://localhost:5173
 Backend : http://localhost:5173
 
-🧪 Test de fonctionnement
+Test de fonctionnement
 
 1. Vérifier la connexion base de données
 
@@ -39,19 +39,19 @@ Réponse attendue : {"success":true,"database":1}
 
    curl http://localhost:3000/api/users
 
-💾 Test de persistance
+Test de persistance
 
 1. Ajouter un utilisateur
 2. Arrêter les conteneurs : docker compose down
 3. Relancer : docker compose up -d
 4. Vérifier que les données sont toujours présentes : curl http://localhost:3000/api/users
 
-🧹 Réinitialiser complètement la base
+Réinitialiser complètement la base
 
     docker compose down -v
     docker compose up -d --build
 
-📂 Architecture Docker
+Architecture Docker
 
 - frontend : Vue (port 5173)
 - backend : Node + Express (port 3000)
