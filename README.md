@@ -5,21 +5,23 @@ Installation et lancement du projet
 1. Créer le fichier .env à la racine
 
    MYSQL_DATABASE=projetdb
+   
    MYSQL_USER=projetuser
 
-2. Créer le dossier secrets
+3. Créer le dossier secrets
 
    echo "motdepasse_user" > secrets/db_password.secret
+   
    echo "brainproot67" > secrets/db_root_password.secret
 
-3. Lancer le projet
+5. Lancer le projet
 
    docker compose up -d --build
 
 Accès aux services
 
 Frontend : http://localhost:5173
-Backend : http://localhost:5173
+Backend : http://localhost:3000
 
 Test de fonctionnement
 
