@@ -41,7 +41,7 @@
   </main>
 </template>
 
-<script setup>
+<script  setup>
 import { onMounted, ref } from 'vue'
 
 const API_BASE = 'http://localhost:3000' // si tu changes le port, ajuste ici
