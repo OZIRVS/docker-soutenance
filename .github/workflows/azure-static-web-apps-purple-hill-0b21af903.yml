@@ -9,4 +9,4 @@
           api_location: ""
           output_location: "dist"
   env:
-          VITE_API_URL: "https://back-soutenance-c9bvg6cbdqh9h7e6.westeurope-01.azurewebsites.net"
+    VITE_API_URL: "https://back-soutenance-c9bvg6cbdqh9h7e6.westeurope-01.azurewebsites.net"
